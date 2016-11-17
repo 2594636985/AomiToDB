@@ -255,7 +255,6 @@ namespace LinqToDB.Data
         {
             _configurationIDs = new ConcurrentDictionary<string, int>();
 
-            LinqToDB.DataProvider.SqlServer.SqlServerTools.GetDataProvider();
             LinqToDB.DataProvider.Access.AccessTools.GetDataProvider();
             LinqToDB.DataProvider.SqlCe.SqlCeTools.GetDataProvider();
             LinqToDB.DataProvider.Firebird.FirebirdTools.GetDataProvider();
@@ -267,6 +266,7 @@ namespace LinqToDB.Data
             LinqToDB.DataProvider.DB2.DB2Tools.GetDataProvider();
             LinqToDB.DataProvider.Informix.InformixTools.GetDataProvider();
             LinqToDB.DataProvider.SapHana.SapHanaTools.GetDataProvider();
+            LinqToDB.DataProvider.SqlServer.SqlServerTools.GetDataProvider();
 
             var section = LinqToDBSection.Instance;
 
@@ -398,6 +398,7 @@ namespace LinqToDB.Data
             {
                 var configuration = css.Name;
                 var providerName = css.ProviderName;
+
                 var dataProvider = _providerDetectors.Select(d => d(css)).FirstOrDefault(dp => dp != null);
 
                 if (dataProvider == null)

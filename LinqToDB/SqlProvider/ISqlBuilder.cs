@@ -6,7 +6,7 @@ using System.Text;
 namespace LinqToDB.SqlProvider
 {
 	using SqlQuery;
-
+    
 	public interface ISqlBuilder
 	{
 		int              CommandCount         (SelectQuery selectQuery);

@@ -15,12 +15,10 @@ namespace AomiToDBTest
         {
             using (AdoContext dbContext = new AdoContext())
             {
-                DataConnection.TurnTraceSwitchOn();
                 var query = from p in dbContext.Products where p.ProductID == 30 select p;
                 List<Products> catalogsList = query.ToList();
-
-                //dbContext.Insert(new Products() { ProductName = "AomiProduct", UnitPrice = 33 });
-
+                
+                
             }
         }
     }
