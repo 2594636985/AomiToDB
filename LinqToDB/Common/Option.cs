@@ -2,6 +2,10 @@
 
 namespace LinqToDB.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
 	class Option<T>
 	{
 		public readonly T Value;

@@ -3,9 +3,10 @@ using System.Configuration;
 
 namespace LinqToDB.Configuration
 {
-	[ConfigurationCollection(typeof(DataProviderElement))]
+    [ConfigurationCollection(typeof(DataProviderElement))]
 	public class DataProviderElementCollection : ElementCollectionBase<DataProviderElement>
 	{
+       
 		protected override object GetElementKey(DataProviderElement element)
 		{
 			// element.Name is optional and may be omitted.

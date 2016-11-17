@@ -12,10 +12,106 @@ namespace LinqToDB
     using SqlProvider;
 
     /// <summary>
-    /// 数据库上下文
+    /// 数据上下文
     /// </summary>
     public class DataContext : IDataContext
     {
+        #region 私有字段
+        private bool? _isMarsEnabled;
+        private bool _keepConnectionAlive;
+        private List<string> _queryHints;
+        private List<string> _nextQueryHints;
+        #endregion
+
+        #region 保护字段
+        protected DataConnection _dataConnection;
+        #endregion
+
+        #region 公有属性
+        /// <summary>
+        /// 配置字符串
+        /// </summary>
+        public string ConfigurationString { get; private set; }
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string ConnectionString { get; private set; }
+        /// <summary>
+        /// 数据供应者
+        /// </summary>
+        public IDataProvider DataProvider { get; private set; }
+        /// <summary>
+        /// 上下文ID
+        /// </summary>
+        public string ContextID { get; set; }
+        public MappingSchema MappingSchema { get; set; }
+        /// <summary>
+        /// 用于在显示SQL加入回键符号
+        /// </summary>
+        public bool InlineParameters { get; set; }
+        public string LastQuery { get; set; }
+
+        public bool KeepConnectionAlive
+        {
+            get { return _keepConnectionAlive; }
+            set
+            {
+                _keepConnectionAlive = value;
+
+                if (value == false)
+                    ReleaseQuery();
+            }
+        }
+
+
+        public bool IsMarsEnabled
+        {
+            get
+            {
+                if (_isMarsEnabled == null)
+                {
+                    if (_dataConnection == null)
+                        return false;
+                    _isMarsEnabled = _dataConnection.IsMarsEnabled;
+                }
+
+                return _isMarsEnabled.Value;
+            }
+            set { _isMarsEnabled = value; }
+        }
+
+        public List<string> QueryHints
+        {
+            get
+            {
+                if (_dataConnection != null)
+                    return _dataConnection.QueryHints;
+
+                return _queryHints ?? (_queryHints = new List<string>());
+            }
+        }
+
+        public List<string> NextQueryHints
+        {
+            get
+            {
+                if (_dataConnection != null)
+                    return _dataConnection.NextQueryHints;
+
+                return _nextQueryHints ?? (_nextQueryHints = new List<string>());
+            }
+        }
+
+        #endregion
+
+        #region 事件
+        /// <summary>
+        /// 关闭事情
+        /// </summary>
+        public event EventHandler OnClosing;
+        #endregion
+
+        #region 构造函数
         public DataContext()
             : this(DataConnection.DefaultConfiguration)
         {
@@ -39,81 +135,16 @@ namespace LinqToDB
             ContextID = DataProvider.Name;
             MappingSchema = DataProvider.MappingSchema;
         }
-        /// <summary>
-        /// 配置字符串
-        /// </summary>
-        public string ConfigurationString { get; private set; }
-        /// <summary>
-        /// 连接字符串
-        /// </summary>
-        public string ConnectionString { get; private set; }
-        /// <summary>
-        /// 数据供应者
-        /// </summary>
-        public IDataProvider DataProvider { get; private set; }
-        public string ContextID { get; set; }
-        public MappingSchema MappingSchema { get; set; }
-        public bool InlineParameters { get; set; }
-        public string LastQuery { get; set; }
-
-        private bool _keepConnectionAlive;
-        public bool KeepConnectionAlive
-        {
-            get { return _keepConnectionAlive; }
-            set
-            {
-                _keepConnectionAlive = value;
-
-                if (value == false)
-                    ReleaseQuery();
-            }
-        }
-
-        private bool? _isMarsEnabled;
-        public bool IsMarsEnabled
-        {
-            get
-            {
-                if (_isMarsEnabled == null)
-                {
-                    if (_dataConnection == null)
-                        return false;
-                    _isMarsEnabled = _dataConnection.IsMarsEnabled;
-                }
-
-                return _isMarsEnabled.Value;
-            }
-            set { _isMarsEnabled = value; }
-        }
-
-        private List<string> _queryHints;
-        public List<string> QueryHints
-        {
-            get
-            {
-                if (_dataConnection != null)
-                    return _dataConnection.QueryHints;
-
-                return _queryHints ?? (_queryHints = new List<string>());
-            }
-        }
-
-        private List<string> _nextQueryHints;
-        public List<string> NextQueryHints
-        {
-            get
-            {
-                if (_dataConnection != null)
-                    return _dataConnection.NextQueryHints;
-
-                return _nextQueryHints ?? (_nextQueryHints = new List<string>());
-            }
-        }
+        DataContext(int n) { }
+        #endregion
 
         internal int LockDbManagerCounter;
+        
 
-        DataConnection _dataConnection;
-
+        /// <summary>
+        /// 获得一个数据连接。如果数据连接不存在就创建一个新的数据连接。
+        /// </summary>
+        /// <returns></returns>
         internal DataConnection GetDataConnection()
         {
             if (_dataConnection == null)
@@ -186,6 +217,11 @@ namespace LinqToDB
             return ctx.SetQuery(queryContext);
         }
 
+        /// <summary>
+        /// 执行非查询操作
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         int IDataContext.ExecuteNonQuery(object query)
         {
             var ctx = GetDataConnection() as IDataContext;
@@ -198,6 +234,11 @@ namespace LinqToDB
             return ctx.ExecuteScalar(query);
         }
 
+        /// <summary>
+        /// 执行一个查询操作。
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         IDataReader IDataContext.ExecuteReader(object query)
         {
             var ctx = GetDataConnection() as IDataContext;
@@ -214,6 +255,11 @@ namespace LinqToDB
             get { return DataProvider.SqlProviderFlags; }
         }
 
+        /// <summary>
+        /// 获得SQL语句
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         string IDataContext.GetSqlText(object query)
         {
             if (_dataConnection != null)
@@ -227,8 +273,12 @@ namespace LinqToDB
             return str;
         }
 
-        DataContext(int n) { }
-
+       
+        /// <summary>
+        /// 复制一个当前的DataContext实例
+        /// </summary>
+        /// <param name="forNestedQuery"></param>
+        /// <returns></returns>
         IDataContext IDataContext.Clone(bool forNestedQuery)
         {
             var dc = new DataContext(0)
@@ -253,7 +303,7 @@ namespace LinqToDB
             return dc;
         }
 
-        public event EventHandler OnClosing;
+       
 
         void IDisposable.Dispose()
         {
@@ -270,6 +320,11 @@ namespace LinqToDB
             }
         }
 
+        /// <summary>
+        /// 指定事务级别，开始一个事务
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns></returns>
         public virtual DataContextTransaction BeginTransaction(IsolationLevel level)
         {
             var dct = new DataContextTransaction(this);
@@ -278,7 +333,11 @@ namespace LinqToDB
 
             return dct;
         }
-
+        /// <summary>
+        /// 开始一个事务，默认是在关闭连接的时候，自动提交事务
+        /// </summary>
+        /// <param name="autoCommitOnDispose"></param>
+        /// <returns></returns>
         public virtual DataContextTransaction BeginTransaction(bool autoCommitOnDispose = true)
         {
             var dct = new DataContextTransaction(this);

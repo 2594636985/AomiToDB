@@ -4,11 +4,15 @@ using System.Linq.Expressions;
 namespace LinqToDB.Linq
 {
     /// <summary>
-    /// 表集合类
+    /// 集合表类
     /// </summary>
     /// <typeparam name="T"></typeparam>
     class Table<T> : ExpressionQuery<T>, ITable<T>, ITable
     {
+        public string DatabaseName { set; get; }
+        public string SchemaName { set; get; }
+        public string TableName { set; get; }
+
         public Table(IDataContextInfo dataContextInfo)
         {
             Init(dataContextInfo, null);
@@ -24,29 +28,9 @@ namespace LinqToDB.Linq
             Init(dataContext == null ? null : new DataContextInfo(dataContext), expression);
         }
 
-#if !SILVERLIGHT
-
         public Table()
         {
             Init(null, null);
         }
-
-#endif
-        public string DatabaseName;
-        public string SchemaName;
-        public string TableName;
-
-        #region Overrides
-
-#if OVERRIDETOSTRING
-
-		public override string ToString()
-		{
-			return "Table(" + typeof(T).Name + ")";
-		}
-
-#endif
-
-        #endregion
     }
 }

@@ -89,7 +89,7 @@ namespace LinqToDB.Linq
     class Query<T> : Query
     {
 
-        #region 属性和字段
+        #region 公有属性
 
         public bool DoNotChache;
         public Query<T> Next;
@@ -160,11 +160,9 @@ namespace LinqToDB.Linq
                         if (Configuration.Linq.GenerateExpressionTest)
                         {
                             var testFile = new ExpressionTestGenerator().GenerateSource(expr);
-#if !SILVERLIGHT && !NETFX_CORE
                             DataConnection.WriteTraceLine(
                                 "Expression test code generated: '" + testFile + "'.",
                                 DataConnection.TraceSwitch.DisplayName);
-#endif
                         }
 
                         try
@@ -175,11 +173,9 @@ namespace LinqToDB.Linq
                         {
                             if (!Configuration.Linq.GenerateExpressionTest)
                             {
-#if !SILVERLIGHT && !NETFX_CORE
                                 DataConnection.WriteTraceLine(
                                     "To generate test code to diagnose the problem set 'LinqToDB.Common.Configuration.Linq.GenerateExpressionTest = true'.",
                                     DataConnection.TraceSwitch.DisplayName);
-#endif
                             }
 
                             throw;
@@ -1119,7 +1115,10 @@ namespace LinqToDB.Linq
                     dataContext.Dispose();
             }
         }
-
+        /// <summary>
+        /// 返回一个Func类型，Func类型用于返回IDataReader类的结果集
+        /// </summary>
+        /// <returns></returns>
         Func<IDataContextInfo, Expression, object[], int, IEnumerable<IDataReader>> GetQuery()
         {
             FinalizeQuery();
@@ -1187,10 +1186,17 @@ namespace LinqToDB.Linq
             public Expression<Func<QueryContext, IDataContext, IDataReader, Expression, object[], T>> MapperExpression;
         }
 
-        static IEnumerable<T> Map(
-            IEnumerable<IDataReader> data,
-            QueryContext queryContext,
-            IDataContextInfo dataContextInfo,
+        /// <summary>
+        /// 执行数据库，并返回对应的结果集
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="queryContext"></param>
+        /// <param name="dataContextInfo"></param>
+        /// <param name="expr"></param>
+        /// <param name="ps"></param>
+        /// <param name="mapInfo"></param>
+        /// <returns></returns>
+        static IEnumerable<T> Map( IEnumerable<IDataReader> data, QueryContext queryContext, IDataContextInfo dataContextInfo,
             Expression expr,
             object[] ps,
             MapInfo mapInfo)

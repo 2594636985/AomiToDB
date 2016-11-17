@@ -150,8 +150,14 @@ namespace LinqToDB.Data
             }
             set { _isMarsEnabled = value; }
         }
-
+        /// <summary>
+        /// 默认连接配置
+        /// </summary>
         public static string DefaultConfiguration { get; set; }
+
+        /// <summary>
+        /// 默认数据提供者
+        /// </summary>
         public static string DefaultDataProvider { get; set; }
 
         private static Action<TraceInfo> _onTrace = OnTraceInternal;
@@ -242,7 +248,9 @@ namespace LinqToDB.Data
 
             return defp;
         }
-
+        /// <summary>
+        /// 用于初始化数据提供者
+        /// </summary>
         static DataConnection()
         {
             _configurationIDs = new ConcurrentDictionary<string, int>();
@@ -379,7 +387,10 @@ namespace LinqToDB.Data
             private IDataProvider _dataProvider;
             public IDataProvider DataProvider
             {
-                get { return _dataProvider ?? (_dataProvider = GetDataProvider(_connectionStringSettings)); }
+                get 
+                {
+                    return _dataProvider ?? (_dataProvider = GetDataProvider(_connectionStringSettings));
+                }
                 set { _dataProvider = value; }
             }
 

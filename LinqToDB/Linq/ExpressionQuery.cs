@@ -11,20 +11,17 @@ using JetBrains.Annotations;
 namespace LinqToDB.Linq
 {
     using Extensions;
-
+    /// <summary>
+    /// 实现Linq查询
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     abstract class ExpressionQuery<T> : IExpressionQuery<T>
     {
-        #region Init
+        #region 初始化方法
 
         protected void Init(IDataContextInfo dataContextInfo, Expression expression)
         {
-#if SILVERLIGHT || NETFX_CORE
-			if (dataContextInfo == null) throw new ArgumentNullException("dataContextInfo");
-
-			DataContextInfo = dataContextInfo;
-#else
             DataContextInfo = dataContextInfo ?? new DefaultDataContextInfo();
-#endif
             Expression = expression ?? Expression.Constant(this);
         }
 
@@ -85,7 +82,7 @@ namespace LinqToDB.Linq
         }
 
 
-         Query<T> GetQuery(Expression expression, bool cache)
+        Query<T> GetQuery(Expression expression, bool cache)
         {
             if (cache && AomiInfo != null)
                 return AomiInfo;

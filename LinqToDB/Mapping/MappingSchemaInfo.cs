@@ -13,18 +13,29 @@ namespace LinqToDB.Mapping
 
     class MappingSchemaInfo
     {
+        #region 私有字段
+        private volatile ConcurrentDictionary<Type, bool> _canBeNull;
+        private volatile ConcurrentDictionary<Type, object> _defaultValues;
+        #endregion
+        #region 公有属性
+        public string Configuration;
+        public IMetadataReader MetadataReader;
+        #endregion
         public MappingSchemaInfo(string configuration)
         {
             Configuration = configuration;
         }
 
-        public string Configuration;
-        public IMetadataReader MetadataReader;
+     
 
         #region Default Values
 
-        volatile ConcurrentDictionary<Type, object> _defaultValues;
-
+       
+        /// <summary>
+        /// 根据Type获得对应的默认值Option
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public Option<object> GetDefaultValue(Type type)
         {
             if (_defaultValues == null)
@@ -33,7 +44,11 @@ namespace LinqToDB.Mapping
             object o;
             return _defaultValues.TryGetValue(type, out o) ? Option<object>.Some(o) : Option<object>.None;
         }
-
+        /// <summary>
+        /// 设置Type对应的默认值
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
         public void SetDefaultValue(Type type, object value)
         {
             if (_defaultValues == null)
@@ -48,8 +63,13 @@ namespace LinqToDB.Mapping
 
         #region CanBeNull
 
-        volatile ConcurrentDictionary<Type, bool> _canBeNull;
+      
 
+        /// <summary>
+        /// 根据Type获得是否可以为空
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public Option<bool> GetCanBeNull(Type type)
         {
             if (_canBeNull == null)
@@ -59,6 +79,11 @@ namespace LinqToDB.Mapping
             return _canBeNull.TryGetValue(type, out o) ? Option<bool>.Some(o) : Option<bool>.None;
         }
 
+        /// <summary>
+        /// 设置Type可以为空
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
         public void SetCanBeNull(Type type, bool value)
         {
             if (_canBeNull == null)
