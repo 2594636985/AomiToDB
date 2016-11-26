@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LinqToDB.Mapping;
+using AomiToDB.Mapping;
+using AomiToDB;
+using System.Linq.Expressions;
 
 namespace AomiToDBTest
 {
@@ -11,9 +13,19 @@ namespace AomiToDBTest
     {
         [PrimaryKey, Identity]
         public int ProductID { set; get; }
-        [Column]
+        [Column, ExpressionMethod("ValidateProductName")]
         public string ProductName { set; get; }
         [Column]
         public decimal UnitPrice { set; get; }
+        [Column]
+        public int SupplierID { set; get; }
+
+        [Association(ThisKey = "SupplierID", OtherKey = "SupplierID")]
+        public Suppliers Suppliers { set; get; }
+
+        public static Expression<Func<string, string>> ValidateProductName()
+        {
+            return n => "aomi";
+        }
     }
 }

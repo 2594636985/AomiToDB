@@ -45,14 +45,15 @@
     <Compile Include="Products.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Suppliers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LinqToDB\LinqToDB.csproj">
-      <Project>{9cbba4a0-8f44-4f12-9127-6132a34d311c}</Project>
-      <Name>LinqToDB</Name>
+    <ProjectReference Include="..\AomiToDB\AomiToDB.csproj">
+      <Project>{feb69e51-f270-4852-8a75-65299c89f35e}</Project>
+      <Name>AomiToDB</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
