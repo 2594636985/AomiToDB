@@ -10,6 +10,9 @@ namespace AomiToDB.Reflection
 	using Extensions;
 	using Mapping;
 
+    /// <summary>
+    /// 成员访问者
+    /// </summary>
 	public class MemberAccessor
 	{
 		public MemberAccessor(TypeAccessor typeAccessor, string memberName)

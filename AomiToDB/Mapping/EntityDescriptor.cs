@@ -10,7 +10,9 @@ namespace AomiToDB.Mapping
 	using Extensions;
 	using Linq;
 	using Reflection;
-
+    /// <summary>
+    /// 实体描述类
+    /// </summary>
 	public class EntityDescriptor
 	{
 		public EntityDescriptor(MappingSchema mappingSchema, Type type)

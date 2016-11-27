@@ -109,6 +109,7 @@ namespace AomiToDB.Linq.Builder
 
         public ExpressionBuilder(Query query, IDataContextInfo dataContext, Expression expression, ParameterExpression[] compiledParameters)
         {
+
             _query = query;
             _expressionAccessors = expression.GetExpressionAccessors(ExpressionParam);
 

@@ -9,12 +9,14 @@ namespace AomiToDB.Reflection
 	using Common;
 	using Extensions;
 
+    /// <summary>
+    /// 类型访问者
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
 	public class TypeAccessor<T> : TypeAccessor
 	{
 		static TypeAccessor()
 		{
-			// Create Instance.
-			//
 			var type = typeof(T);
 
 			if (type.IsValueTypeEx())

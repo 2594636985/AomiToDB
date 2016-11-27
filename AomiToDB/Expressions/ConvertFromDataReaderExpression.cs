@@ -12,6 +12,16 @@ namespace AomiToDB.Expressions
 
     class ConvertFromDataReaderExpression : Expression
     {
+        private readonly int _idx;
+        private readonly Expression _dataReaderParam;
+        private readonly IDataContext _dataContext;
+        private readonly Type _type;
+
+        #region 公有属性
+        public override Type Type { get { return _type; } }
+        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
+        public override bool CanReduce { get { return true; } }
+        #endregion
         public ConvertFromDataReaderExpression(
             Type type, int idx, Expression dataReaderParam, IDataContext dataContext)
         {
@@ -20,15 +30,6 @@ namespace AomiToDB.Expressions
             _dataReaderParam = dataReaderParam;
             _dataContext = dataContext;
         }
-
-        readonly int _idx;
-        readonly Expression _dataReaderParam;
-        readonly IDataContext _dataContext;
-        readonly Type _type;
-
-        public override Type Type { get { return _type; } }
-        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
-        public override bool CanReduce { get { return true; } }
 
         static readonly MethodInfo _columnReaderGetValueInfo = MemberHelper.MethodOf<ColumnReader>(r => r.GetValue(null));
 

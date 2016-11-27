@@ -70,9 +70,7 @@ namespace AomiToDB.Expressions
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
                 case ExpressionType.ArrayIndex:
-#if FW4 || SILVERLIGHT
                 case ExpressionType.Assign:
-#endif
                 case ExpressionType.Coalesce:
                 case ExpressionType.Divide:
                 case ExpressionType.Equal:
@@ -401,8 +399,6 @@ namespace AomiToDB.Expressions
                         return e1.TypeOperand == e2.TypeOperand && e1.Expression.EqualsTo(e2.Expression, visited, queryableAccessorDic);
                     }
 
-#if FW4 || SILVERLIGHT
-
                 case ExpressionType.Block:
                     {
                         var e1 = (BlockExpression)expr1;
@@ -419,7 +415,6 @@ namespace AomiToDB.Expressions
                         return true;
                     }
 
-#endif
             }
 
             throw new InvalidOperationException();
@@ -462,7 +457,7 @@ namespace AomiToDB.Expressions
             Path(expr, new HashSet<Expression>(), path, func);
         }
 
-        static void Path(this Expression expr,HashSet<Expression> visited, Expression path, Action<Expression, Expression> func)
+        static void Path(this Expression expr, HashSet<Expression> visited, Expression path, Action<Expression, Expression> func)
         {
             if (expr == null)
                 return;
@@ -474,9 +469,7 @@ namespace AomiToDB.Expressions
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
                 case ExpressionType.ArrayIndex:
-#if FW4 || SILVERLIGHT
                 case ExpressionType.Assign:
-#endif
                 case ExpressionType.Coalesce:
                 case ExpressionType.Divide:
                 case ExpressionType.Equal:
@@ -670,8 +663,6 @@ namespace AomiToDB.Expressions
                         func);
                     break;
 
-#if FW4 || SILVERLIGHT
-
                 case ExpressionType.Block:
                     {
                         path = ConvertTo(path, typeof(BlockExpression));
@@ -682,8 +673,6 @@ namespace AomiToDB.Expressions
 
                         break;
                     }
-
-#endif
 
                 case ExpressionType.Constant:
                     {
@@ -814,7 +803,11 @@ namespace AomiToDB.Expressions
 
             return expr;
         }
-
+        /// <summary>
+        /// 获得当前表达式中
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <returns></returns>
         public static List<Expression> GetMembers(this Expression expr)
         {
             if (expr == null)
@@ -857,6 +850,11 @@ namespace AomiToDB.Expressions
             return list;
         }
 
+        /// <summary>
+        /// 判断调用方法表达式的类是Queryable类型或是Enumerable类型或是LinqExtensions类扩展的
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         public static bool IsQueryable(this MethodCallExpression method)
         {
             var type = method.Method.DeclaringType;
@@ -864,11 +862,23 @@ namespace AomiToDB.Expressions
             return type == typeof(Queryable) || type == typeof(Enumerable) || type == typeof(LinqExtensions);
         }
 
+        /// <summary>
+        /// 判断调用方法表达式是否是指定的类型名称的表达式
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static bool IsQueryable(this MethodCallExpression method, string name)
         {
             return method.Method.Name == name && method.IsQueryable();
         }
 
+        /// <summary>
+        ///  判断调用方法表达式是否是指定的类型名称集合内的的表达式
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="names"></param>
+        /// <returns></returns>
         public static bool IsQueryable(this MethodCallExpression method, params string[] names)
         {
             if (method.IsQueryable())
